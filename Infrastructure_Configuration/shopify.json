@@ -1,0 +1,21 @@
+{
+    "DATABASE_NAME": "${database_name}",
+    "SHOPIFY_PRODUCT_COLLECTION": "${database_name}_SHOPIFY_PRODUCT",
+    "SHOPIFY_LOGS_COLLECTION": "${database_name}_SHOPIFY_LOGS",
+    "SHOPIFY_COMPUTE_ENVIRONMENT_NAME": "${database_name}_shopify_compute_environment",
+    "SHOPIFY_JOB_QUEUE_NAME": "${database_name}_shopify_job_queue",
+    "SHOPIFY_JOB_DEFINITION_NAME": "${database_name}_shopify_job_definition",
+    "SHOPIFY_JOB_NAME": "${database_name}_shopify_job",
+    "SHOPIFY_LAMBDA_FUNCTION_NAME": "${database_name}_shopify_lambda_function",
+    "SHOPIFY_LAMBDA_ROLE_NAME": "${database_name}_shopify_role",
+    "S3_BUCKET_NAME": "${database_name}-${random_string}-bucket",
+    "SHOPIFY_API_NAME": "${database_name}_shopify_api",
+    "AWS_REGION": "ap-south-1",
+    "SHOPIFY_ECR_IMAGE_URI": "654654551634.dkr.ecr.ap-south-1.amazonaws.com/connector/shopify:latest",
+    "SHOPIFY_STORE_NAME": "",
+    "SHOPIFY_API_KEY": "",
+    "SHOPIFY_ACCESS_TOKEN": "",
+    "SHOPIFY_LAMBDA_ARN": "",
+    "SHOPIFY_API_GATEWAY_ENDPOINT": "",
+    "SHOPIFY_API_ID": ""
+}
