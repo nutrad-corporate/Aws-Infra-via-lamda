@@ -20,5 +20,14 @@
     - Directory: [Create_S3_Bucket](Create_S3_Bucket)
     - Description:
         1. Responsible for creating the S3 Bucket for the respective client along with that it provides the ACL (public-read) for all its objects.
-        2. This Lambda function requires to create the IAM role, such that it can able take action for the S3.
-        3. It takes the name of the S3 Bucket from the configuration document. 
+        2. This Lambda function requires to add permission to the IAM role of it, such that it can able to take action for the S3.
+        3. It takes the name of the S3 Bucket from the configuration document.
+
+4. createComputeEnvironment
+    - API Gateway: https://i8c4gggymd.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
+    - Directory: [Create_Compute_Environment](Create_Compute_Environment)
+    - Description:
+        1. Responsible for creating the Compute Environment for the respective client.
+        2. This Lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
+        3. It takes the name of the Compute Environment from the configuration document.
+ 
