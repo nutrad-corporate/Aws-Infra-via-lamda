@@ -18,6 +18,9 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
             }
+        
+        dbName = dbName.lower()
+        connector = connector.lower()
 
         # connect to MongoDB
         client = MongoClient(MONGODB_URI)
@@ -25,7 +28,7 @@ def lambda_handler(event, context):
         
         # fetch template
         template_db = client['Infrastructure_Configuration']
-        template_collection = template_db.get_collection(connector.lower())
+        template_collection = template_db.get_collection(connector)
         template_doc = template_collection.find_one()
         if not template_doc:
             return {

@@ -21,6 +21,9 @@ def lambda_handler(event, context):
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
             }
         
+        client_name = client_name.lower()
+        connector = connector.lower()
+        
         # connect to MongoDB
         client = MongoClient(MONGODB_URI)
         client.admin.command('ping')
