@@ -3,6 +3,11 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from bson import ObjectId
+import logging
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 # MongoDB connection
@@ -16,6 +21,7 @@ def lambda_handler(event, context):
         connector = path_params.get("connector")
 
         if not client_name or not connector:
+            logger.warning("Missing path parameters")
             return {
                 'statusCode': 400,
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
@@ -23,23 +29,28 @@ def lambda_handler(event, context):
         
         client_name = client_name.lower()
         connector = connector.lower()
+
+        logger.info(f"Processing request of client: {client_name} for connector: {connector}")
         
         # connect to MongoDB
         client = MongoClient(MONGODB_URI)
         client.admin.command('ping')
 
         # select the appropriate database and configuraiton collection
+        logger.info("Connecting to the database")
         db = client[client_name]
         config_collection = db[f'{client_name}_Configuration']
         config_doc = config_collection.find_one()
 
         if not config_doc:
+            logger.warning(f"No configuration found for client: {client_name}")
             return {
                 'statusCode': 400,
                 'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
             }
         
-        match connector.lower():
+        logger.info(f"Creating collections for the connector: {connector}")
+        match connector:
             case 'shopify':
                 collections_to_create = [
                     config_doc.get("SHOPIFY_PRODUCT_COLLECTION"),
@@ -55,6 +66,7 @@ def lambda_handler(event, context):
                 ]
 
                 # Load JSON file if Template is present
+                logger.info("Inserting Walmart_Templates.json in the WALMART_PRODUCT_TEMPLATE collection")
                 template_collection = config_doc.get("WALMART_PRODUCT_TEMPLATE")
                 if template_collection:
                     try:
@@ -72,11 +84,13 @@ def lambda_handler(event, context):
                                 doc['_id'] = ObjectId(doc['_id']['$oid'])
                             db[template_collection].insert_one(doc)
                     except FileNotFoundError:
+                        logger.exception("Walmart_Template.json not found in the directory")
                         return {
                             'statusCode': 500,
                             'body': json.dumps({'error': 'Walmart_Templates.json not found in Lambda directory'})
                         }
                     except json.JSONDecodeError:
+                        logger.exception("Invalid JSON format in Walmart_Template.json")
                         return {
                             'statusCode': 500,
                             'body': json.dumps({'error': 'Invalid JSON format in Walmart_Templates.json'})
@@ -90,6 +104,7 @@ def lambda_handler(event, context):
                     config_doc.get("LAZADA_BRAND_ID_COLLECTION")
                 ]
 
+                logger.info("Inserting category_id.json in LAZADA_CATEGORY_ID_COLLECTION")
                 category_collection = config_doc.get("LAZADA_CATEGORY_ID_COLLECTION")
                 if category_collection:
                     try:
@@ -98,17 +113,20 @@ def lambda_handler(event, context):
                         
                         db[category_collection].insert_one(category_data)
                     except FileNotFoundError:
+                        logger.exception("category_id.json not found in the directory")
                         return {
                             'statusCode': 500,
                             'body': json.dumps({'error': 'category_id.json not found in Lambda directory'})
                         }
                     except json.JSONDecodeError:
+                        logger.exception("Invalid JSON format in category_id.json")
                         return {
                             'statusCode': 500,
                             'body': json.dumps({'error': 'Invalid JSON format in category_id.json'})
                         }
                 collections_to_create.remove(category_collection)
 
+                logger.info("Inserting brand_id.json in LAZADA_BRAND_ID_COLLECTION")
                 brand_collection = config_doc.get("LAZADA_BRAND_ID_COLLECTION")
                 if brand_collection:
                     try:
@@ -117,17 +135,20 @@ def lambda_handler(event, context):
 
                         db[brand_collection].insert_one(brand_data)
                     except FileNotFoundError:
+                        logger.exception("brand_id.json not found in the directory")
                         return {
                             'statusCode': 500,
                             'body': json.dumps({'error': 'brand_id.json not found in Lambda directory'})
                         }
                     except json.JSONDecodeError:
+                        logger.exception("Invalid JSON format in the brand_id.json")
                         return {
                             'statusCode': 500,
                             'body': json.dumps({'error': 'Invalid JSON format in brand_id.json'})
                         }
                 collections_to_create.remove(brand_collection)
             case _:
+                logger.warning(f"Unsupprted connector: {connector}")
                 return {
                     'statusCode': 400,
                     'body': json.dumps({'error': f'Unsupported connector: {connector}'})
@@ -149,11 +170,13 @@ def lambda_handler(event, context):
             })
         }
     except ConnectionFailure:
+        logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
     except Exception as e:
+        logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})

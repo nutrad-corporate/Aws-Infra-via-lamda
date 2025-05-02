@@ -2,6 +2,12 @@ import json
 import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+import logging
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 
 # MongoDB connection
 MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://nuadmin:H9ck668ixt3!@44.211.106.255:19041/')
@@ -14,6 +20,7 @@ def lambda_handler(event, context):
         connector = path_params.get('connector')
 
         if not dbName or not connector:
+            logger.warning(f"Missing path parameters")
             return {
                 'statusCode': 400,
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
@@ -22,15 +29,19 @@ def lambda_handler(event, context):
         dbName = dbName.lower()
         connector = connector.lower()
 
+        logger.info(f"Processing request of client: {dbName} for connector: {connector}")
+
         # connect to MongoDB
         client = MongoClient(MONGODB_URI)
         client.admin.command('ping')
         
         # fetch template
+        logger.info(f"Fetching template configuration for connector: {connector}")
         template_db = client['Infrastructure_Configuration']
         template_collection = template_db.get_collection(connector)
         template_doc = template_collection.find_one()
         if not template_doc:
+            logger.warning(f"No template configuration found for connector: {connector}")
             return {
                 'statusCode': 500,
                 'body': json.dumps({'error': f'Template configuration not found for {connector}'})
@@ -47,6 +58,7 @@ def lambda_handler(event, context):
         config_doc = json.loads(template_str)
 
         # save to target collection
+        logger.info("Connecting to database and creating the configuration collection along with configuration document")
         db = client[dbName]
         config_collection = db[f'{dbName}_Configuration']
         existing_databases = client.list_database_names()
@@ -69,11 +81,13 @@ def lambda_handler(event, context):
         }
 
     except ConnectionFailure:
+        logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
     except Exception as e:
+        logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})
