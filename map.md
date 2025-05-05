@@ -52,3 +52,12 @@
         1. Responsible for creating the Job Definition for the respective connector for the respective client.
         2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
         3. It takes the name of the Job Definition and ECR Image URI from the configuration document.
+
+7. createJob
+    - API Gateway: https://s97690e06j.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
+    - API Method: GET
+    - Directory: [Create_Job](Create_Job)
+    - Description:
+        1. Responsible for submitting job for the respective connector for the respective client to post the product on the respective connector's interface.
+        2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
+        3. It takes the name of the Job Name, Job Definition, and Job Queue from the configuration document.
