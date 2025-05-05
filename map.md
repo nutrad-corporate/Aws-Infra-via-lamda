@@ -38,3 +38,11 @@
         1. Responsible for creating the Job Queue for the respective connector for the respective client.
         2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
         3. It takes the name of the Job Queue and Compute Environment from the configuration document.
+
+6. createJobDefinition
+    - API Gateway: https://4li7upsuzh.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
+    - Directory: [Create_Job_Definition](Create_Job_Definition)
+    - Description:
+        1. Responsible for creating the Job Definition for the respective connector for the respective client.
+        2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
+        3. It takes the name of the Job Definition and ECR Image URI from the configuration document.
