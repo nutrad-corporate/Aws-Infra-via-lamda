@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 # MongoDB Configuration
-MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://nuadmin:H9ck668ixt3!@44.211.106.255:19041/')
+MONGODB_URI = os.environ.get('MONGODB_URI')
 
 
 # AWS Configuration

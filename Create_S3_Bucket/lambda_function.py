@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 # MongoDB Configuration
-MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://nuadmin:H9ck668ixt3!@44.211.106.255:19041/')
+MONGODB_URI = os.environ.get('MONGODB_URI')
 
 # AWS Configuration
 s3_client = boto3.client('s3')
@@ -55,14 +55,14 @@ def lambda_handler(event, context):
         bucket_name = config_doc.get("S3_BUCKET_NAME")
         region = config_doc.get("AWS_REGION", None) 
 
-        logger.info(f"Fetched bucket name: {bucket_name}, region: {region}")
-
         if not bucket_name:
             logger.warning(f"S3_BUCKET_NAME is missing in configuration document of client: {client_name}")
             return {
                 'statusCode': 400,
                 'body': json.dumps({"error": f"S3_BUCKET_NAME is missing in configuration document of client: {client_name}"})
             }
+        
+        logger.info(f"Fetched bucket name: {bucket_name}, region: {region}")
         
         try:
             logger.info("Creating the S3 Bucket")

@@ -10,7 +10,7 @@ logger.setLevel(logging.INFO)
 
 
 # MongoDB connection
-MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://nuadmin:H9ck668ixt3!@44.211.106.255:19041/')
+MONGODB_URI = os.environ.get('MONGODB_URI')
 
 def lambda_handler(event, context):
     client = None  # ensure it's defined
