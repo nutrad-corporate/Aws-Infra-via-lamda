@@ -27,7 +27,14 @@
     - API Gateway: https://i8c4gggymd.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
     - Directory: [Create_Compute_Environment](Create_Compute_Environment)
     - Description:
-        1. Responsible for creating the Compute Environment for the respective client.
+        1. Responsible for creating the Compute Environment for the respective connector of the respective client.
         2. This Lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
         3. It takes the name of the Compute Environment from the configuration document.
- 
+
+5. createJobQueue
+    - API Gateway: https://yarbf8k83a.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
+    - Directory: [Create_Job_Queue](Create_Job_Queue)
+    - Description:
+        1. Responsible for creating the Job Queue for the respective connector for the respective client.
+        2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
+        3. It takes the name of the Job Queue and Compute Environment from the configuration document.
