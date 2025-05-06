@@ -1,6 +1,7 @@
 # Create Job Payload
 
 ### Payload for Shopify
+```md
 {
   "pathParameters": {
     "client": "demo_client",
@@ -11,8 +12,10 @@
     "command": ["python", "post_product.py"]
   }
 }
+```
 
 ### Payload for Walmart
+```md
 {
   "pathParameters": {
     "client": "demo_client",
@@ -23,8 +26,10 @@
     "command": ["python", "main.py"]
   }
 }
+```
 
 ### Payload for Lazada
+```md
 {
   "pathParameters": {
     "client": "demo_client",
@@ -35,8 +40,10 @@
     "command": ["python", "create_lazada_product.py"]
   }
 }
+```
 
 ### Payload for Walmart (Check Feed Status)
+```md
 {
   "pathParameters": {
     "client": "demo_client",
@@ -47,3 +54,4 @@
     "command": ["python", "check_feed_status.py"]
   }
 }
+```
