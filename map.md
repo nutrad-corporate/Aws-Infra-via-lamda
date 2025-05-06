@@ -12,7 +12,7 @@
 2. connectorCollection
     - API Gateway: https://s2emxkbodf.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
     - API Method: POST
-    - Payload: [Payload](connectorCollectionPayload.md)
+    - Payload: [Payload](Payloads/connectorCollectionPayload.md)
     - Directory: [Create_Connector_Collection_Mongo](Create_Connector_Collection_Mongo)
     - Description:
         1. Responsible for the creation of the collections required by the respective connector in the database.
@@ -22,7 +22,7 @@
     - API Gateway: https://m890ytvhy4.execute-api.ap-south-1.amazonaws.com/prod/init/{client}
     - API Method: POST
     - Directory: [Create_S3_Bucket](Create_S3_Bucket)
-    - Payload: [Payload](s3BucketPayload.md) 
+    - Payload: [Payload](Payloads/s3BucketPayload.md) 
     - Description:
         1. Responsible for creating the S3 Bucket for the respective client along with that it provides the ACL (public-read) for all its objects.
         2. This Lambda function requires to add permission to the IAM role of it, such that it can able to take action for the S3.
@@ -58,7 +58,7 @@
 7. createJob
     - API Gateway: https://s97690e06j.execute-api.ap-south-1.amazonaws.com/default/init/{job_type}/{client}/{connector}
     - API Method: POST
-    - Payload: [Payload](createJobPayload.md)
+    - Payload: [Payload](Payloads/createJobPayload.md)
     - Directory: [Create_Job](Create_Job)
     - Description:
         1. Responsible for submit the job to the relevant connector.
