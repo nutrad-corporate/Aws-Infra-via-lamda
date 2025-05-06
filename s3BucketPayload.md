@@ -38,6 +38,12 @@
           "Resource": "arn:aws:s3:::${bucket}/archive/*"
         },
         {
+          "Sid": "AllowPutObject",
+          "Effect": "Allow",
+          "Action": "s3:PutObject",
+          "Resource": "arn:aws:s3:::${bucket}/*"
+        },
+        {
           "Sid": "AllowObjectDelete",
           "Effect": "Allow",
           "Principal": "*",
