@@ -23,5 +23,6 @@
     "WALMART_API_ID": "",
     "WALMART_API_GATEWAY_ENDPOINT": "",
     "WALMART_CHECK_FEED_STATUS_FUNCTION_NAME": "${database_name}_walmart_check_feed_status_function",
-    "WALMART_UPDATE_INVENTORY_FUNCTION_NAME": "${database_name}_walmart_update_inventory_function"
+    "WALMART_UPDATE_INVENTORY_FUNCTION_NAME": "${database_name}_walmart_update_inventory_function",
+    "WALMART_CHECK_FEED_STATUS_RULE_NAME": "${database_name}_walmart_feed_status_schedule_rule"
 }
