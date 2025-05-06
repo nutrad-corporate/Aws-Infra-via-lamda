@@ -32,6 +32,17 @@ def lambda_handler(event, context):
 
         client_name = client_name.lower()
 
+        # Parse body
+        body = event.get('body')
+        if isinstance(body, str):
+            body = json.loads(body)
+        
+        public_access_block = body.get("public_access_block")
+        ownership_controls = body.get("ownership_controls")
+        acl = body.get("acl")
+        policy = body.get("policy")
+
+
         logger.info(f"Processing request of client: {client_name}")
         
         # connect to MongoDB
@@ -71,58 +82,46 @@ def lambda_handler(event, context):
             else:
                 location = {'LocationConstraint': region}
                 s3_client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
+            
+            # apply optional configurations
+            if public_access_block:
+                logger.info("Applying public access block configuration")
+                s3_client.put_public_access_block(
+                    Bucket=bucket_name,
+                    PublicAccessBlockConfiguration=public_access_block
+                )
 
-            # allow public access
-            s3_client.put_public_access_block(
-                Bucket=bucket_name,
-                PublicAccessBlockConfiguration={
-                    'BlockPublicAcls': False,
-                    'IgnorePublicAcls': False,
-                    'BlockPublicPolicy': False,
-                    'RestrictPublicBuckets': False
-                }
-            )
+            if ownership_controls:
+                logger.info("Applying ownership controls")
+                s3_client.put_bucket_ownership_controls(
+                    Bucket=bucket_name,
+                    OwnershipControls=ownership_controls
+                )
 
-            # enable ACL
-            s3_client.put_bucket_ownership_controls(
-                Bucket=bucket_name,
-                OwnershipControls={
-                    'Rules': [
-                        {
-                            'ObjectOwnership': 'ObjectWriter'
-                        }
-                    ]
-                }
-            )    
-        
-            # allow object read
-            s3_client.put_bucket_acl(
-                Bucket=bucket_name,
-                ACL='public-read'
-            )
+            if acl:
+                logger.info(f"Applying ACL: {acl}")
+                s3_client.put_bucket_acl(
+                    Bucket=bucket_name,
+                    ACL=acl
+                )   
 
-            bucket_policy = {
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "AddPublicReadACLToAllObjects",
-                        "Effect": "Allow",
-                        "Principal": "*",
-                        "Action": "s3:GetObject",
-                        "Resource": f"arn:aws:s3:::{bucket_name}/*"
-                    }
-                ]
-            }
+            if policy:
+                logger.info("Injecting actual bucket name into policy resource ARNs")
+                for statement in policy.get("Statement", []):
+                    resource = statement.get("Resource")
+                    if isinstance(resource, str):
+                        statement["Resource"] = resource.replace("${bucket}", bucket_name)
+                
+                logger.info("Applying bucket policy")
+                s3_client.put_bucket_policy(
+                    Bucket=bucket_name,
+                    Policy=json.dumps(policy)
+                )
 
-            s3_client.put_bucket_policy(
-                Bucket=bucket_name,
-                Policy=json.dumps(bucket_policy)
-            )
-
-            logger.info(f"Bucket '{bucket_name}' created successfully")
+            logger.info(f"Bucket '{bucket_name}' created and configured successfully")
             return {
                 'statusCode': 200,
-                'body': json.dumps({"message": f"Bucket '{bucket_name}' created successfully"})
+                'body': json.dumps({"message": f"Bucket '{bucket_name}' created and configured successfully"})
             }
         
         except ClientError as e:

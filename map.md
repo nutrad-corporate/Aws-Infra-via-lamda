@@ -20,8 +20,9 @@
 
 3. createS3Bucket
     - API Gateway: https://m890ytvhy4.execute-api.ap-south-1.amazonaws.com/prod/init/{client}
-    - API Method: GET
+    - API Method: POST
     - Directory: [Create_S3_Bucket](Create_S3_Bucket)
+    - Payload: [Payload](s3BucketPayload.md) 
     - Description:
         1. Responsible for creating the S3 Bucket for the respective client along with that it provides the ACL (public-read) for all its objects.
         2. This Lambda function requires to add permission to the IAM role of it, such that it can able to take action for the S3.
