@@ -11,7 +11,8 @@
 
 2. connectorCollection
     - API Gateway: https://s2emxkbodf.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
-    - API Method: GET
+    - API Method: POST
+    - Payload: [Payload](connectorCollectionPayload.md)
     - Directory: [Create_Connector_Collection_Mongo](Create_Connector_Collection_Mongo)
     - Description:
         1. Responsible for the creation of the collections required by the respective connector in the database.
