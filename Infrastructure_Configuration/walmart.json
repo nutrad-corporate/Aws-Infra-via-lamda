@@ -12,7 +12,7 @@
     "WALMART_COMPUTE_ENVIRONMENT_NAME": "${database_name}_walmart_compute_environment",
     "WALMART_JOB_QUEUE_NAME": "${database_name}_walmart_job_queue",
     "WALMART_JOB_DEFINITION_NAME": "${database_name}_walmart_job_definition",
-    "WALMART_POST_PRODUCT_JOB_NAME": "${database_name}_walmart_post_product_job",
+    "WALMART_JOB_NAME": "${database_name}_walmart_post_product_job",
     "WALMART_CHECK_FEED_STATUS_JOB_NAME": "${database_name}_walmart_ckeck_feed_status_job",
     "WALMART_UPDATE_INVENTORY_JOB_NAME": "${database_name}_walmart_update_inventory_job",
     "WALMART_LAMBDA_FUNCTION_NAME": "${database_name}_walmart_lambda_function",
