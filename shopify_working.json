@@ -1,0 +1,91 @@
+{
+  "pathParameters": {
+    "client": "demo_client",
+    "connector": "shopify"
+  },
+  "body": {
+    "setupsteps": {
+      "step_1": {
+        "name": "create_configuration"
+      },
+      "step_2": {
+        "name": "create_collections",
+        "payload": {
+          "collections": [
+            "SHOPIFY_PRODUCT_COLLECTION",
+            "SHOPIFY_LOGS_COLLECTION"
+          ]
+        }
+      },
+      "step_3": {
+        "name": "create_s3_bucket",
+        "payload": {
+          "public_access_block": {
+            "BlockPublicAcls": false,
+            "IgnorePublicAcls": false,
+            "BlockPublicPolicy": false,
+            "RestrictPublicBuckets": false
+          },
+          "ownership_controls": {
+            "Rules": [
+              {
+                "ObjectOwnership": "ObjectWriter"
+              }
+            ]
+          },
+          "acl": "public-read",
+          "policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "AddPublicReadACLToAllObjects",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              },
+              {
+                "Sid": "AllowPutToArchive",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:PutObject",
+                "Resource": "arn:aws:s3:::${bucket}/archive/*"
+              },
+              {
+                "Sid": "AllowPutObject",
+                "Effect": "Allow",
+                "Action": "s3:PutObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              },
+              {
+                "Sid": "AllowObjectDelete",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:DeleteObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              }
+            ]
+          }
+        }
+      },
+      "step_4": {
+        "name": "create_compute_environment"
+      },
+      "step_5": {
+        "name": "create_job_queue"
+      },
+      "step_6": {
+        "name": "create_job_definition"
+      },
+      "step_7": {
+        "name": "create_job",
+        "payload": {
+          "command": [
+            "python",
+            "post_product.py"
+          ]
+        }
+      }
+    }
+  }
+}
