@@ -56,10 +56,11 @@
         3. It takes the name of the Job Definition and ECR Image URI from the configuration document.
 
 7. createJob
-    - API Gateway: https://s97690e06j.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
-    - API Method: GET
+    - API Gateway: https://s97690e06j.execute-api.ap-south-1.amazonaws.com/default/init/{job_type}/{client}/{connector}
+    - API Method: POST
+    - Payload: [Payload](createJobPayload.md)
     - Directory: [Create_Job](Create_Job)
     - Description:
-        1. Responsible for submitting job for the respective connector for the respective client to post the product on the respective connector's interface.
+        1. Responsible for submit the job to the relevant connector.
         2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
-        3. It takes the name of the Job Name, Job Definition, and Job Queue from the configuration document.
+        3. It takes the name of the Job Name, Job Definition, Job Queue, and WALMART_CHECK_FEED_STATUS_RULE_NAME from the configuration document.
