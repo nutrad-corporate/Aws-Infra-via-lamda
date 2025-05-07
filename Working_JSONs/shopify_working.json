@@ -76,16 +76,6 @@
       },
       "step_6": {
         "name": "create_job_definition"
-      },
-      "step_7": {
-        "name": "create_job",
-        "job_type": "submit",
-        "payload": {
-          "command": [
-            "python",
-            "post_product.py"
-          ]
-        }
       }
     }
   }

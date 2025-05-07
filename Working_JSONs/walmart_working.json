@@ -1,108 +1,88 @@
 {
-    "pathParameters": {
-      "client": "demo_client",
-      "connector": "walmart"
-    },
-    "body": {
-      "setupsteps": {
-        "step_1": {
-          "name": "create_configuration"
-        },
-        "step_2": {
-          "name": "create_collections",
-          "payload": {
-            "collections": [
-              "WALMART_PRODUCT_TEMPLATE",
-              "WALMART_PRODUCT_COLLECTION",
-              "WALMART_FINAL_FEED_TEMP",
-              "WALMART_PRODUCT_INVENTORY",
-              "WALMART_LOGS_COLLECTION"
-            ],
-            "template_files": {
-              "WALMART_PRODUCT_TEMPLATE": "Walmart_Templates.json"
-            }
+  "pathParameters": {
+    "client": "demo_client",
+    "connector": "walmart"
+  },
+  "body": {
+    "setupsteps": {
+      "step_1": {
+        "name": "create_configuration"
+      },
+      "step_2": {
+        "name": "create_collections",
+        "payload": {
+          "collections": [
+            "WALMART_PRODUCT_TEMPLATE",
+            "WALMART_PRODUCT_COLLECTION",
+            "WALMART_FINAL_FEED_TEMP",
+            "WALMART_PRODUCT_INVENTORY",
+            "WALMART_LOGS_COLLECTION"
+          ],
+          "template_files": {
+            "WALMART_PRODUCT_TEMPLATE": "Walmart_Templates.json"
           }
-        },
-        "step_3": {
-          "name": "create_s3_bucket",
-          "payload": {
-            "public_access_block": {
-              "BlockPublicAcls": false,
-              "IgnorePublicAcls": false,
-              "BlockPublicPolicy": false,
-              "RestrictPublicBuckets": false
-            },
-            "ownership_controls": {
-              "Rules": [
-                {
-                  "ObjectOwnership": "ObjectWriter"
-                }
-              ]
-            },
-            "acl": "public-read",
-            "policy": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "AddPublicReadACLToAllObjects",
-                  "Effect": "Allow",
-                  "Principal": "*",
-                  "Action": "s3:GetObject",
-                  "Resource": "arn:aws:s3:::${bucket}/*"
-                },
-                {
-                  "Sid": "AllowPutToArchive",
-                  "Effect": "Allow",
-                  "Principal": "*",
-                  "Action": "s3:PutObject",
-                  "Resource": "arn:aws:s3:::${bucket}/archive/*"
-                },
-                {
-                  "Sid": "AllowPutObject",
-                  "Effect": "Allow",
-                  "Action": "s3:PutObject",
-                  "Resource": "arn:aws:s3:::${bucket}/*"
-                },
-                {
-                  "Sid": "AllowObjectDelete",
-                  "Effect": "Allow",
-                  "Principal": "*",
-                  "Action": "s3:DeleteObject",
-                  "Resource": "arn:aws:s3:::${bucket}/*"
-                }
-              ]
-            }
-          }
-        },
-        "step_4": {
-          "name": "create_compute_environment"
-        },
-        "step_5": {
-          "name": "create_job_queue"
-        },
-        "step_6": {
-          "name": "create_job_definition"
-        },
-        "step_7": {
-          "name": "create_job",
-          "job_type": "submit",
-          "payload": {
-            "command": [
-              "python",
-              "main.py"
+        }
+      },
+      "step_3": {
+        "name": "create_s3_bucket",
+        "payload": {
+          "public_access_block": {
+            "BlockPublicAcls": false,
+            "IgnorePublicAcls": false,
+            "BlockPublicPolicy": false,
+            "RestrictPublicBuckets": false
+          },
+          "ownership_controls": {
+            "Rules": [
+              {
+                "ObjectOwnership": "ObjectWriter"
+              }
             ]
-          }
-        },
-        "step_8": {
-          "name": "create_job",
-          "job_type": "check_feed_status",
-          "payload": {
-            "command": [
-              "python",
-              "check_feed_status.py"
+          },
+          "acl": "public-read",
+          "policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "AddPublicReadACLToAllObjects",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              },
+              {
+                "Sid": "AllowPutToArchive",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:PutObject",
+                "Resource": "arn:aws:s3:::${bucket}/archive/*"
+              },
+              {
+                "Sid": "AllowPutObject",
+                "Effect": "Allow",
+                "Action": "s3:PutObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              },
+              {
+                "Sid": "AllowObjectDelete",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:DeleteObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              }
             ]
           }
         }
+      },
+      "step_4": {
+        "name": "create_compute_environment"
+      },
+      "step_5": {
+        "name": "create_job_queue"
+      },
+      "step_6": {
+        "name": "create_job_definition"
       }
     }
   }
+}
