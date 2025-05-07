@@ -83,4 +83,13 @@
     - Directory: [API_Authorizer](API_Authorizer)
     - Description:
         1. This lambda function is used as an authorizer for all the APIs we have created.
-        2. This lambda function is attached as an authorizer with all the APIs on the specific route.    
+        2. This lambda function is attached as an authorizer with all the APIs on the specific route.
+
+9. awsInfrastructure
+    - API Gateway: https://2zezoas193.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}
+    - API Method: POST
+    - CORS Enabled: True
+    - Authorization: True
+    - Directory: [AWS_Infrastructure](AWS_Infrastructure)
+    - Description:
+        1. Responsible for creating the complete infrastructure for the specific connector of the client.
