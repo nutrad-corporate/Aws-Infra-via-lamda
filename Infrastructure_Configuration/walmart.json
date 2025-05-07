@@ -19,9 +19,6 @@
     "WALMART_LAMBDA_ROLE_NAME": "${database_name}_walmart_role",
     "WALMART_API_NAME": "${database_name}_walmart_api",
     "WALMART_ECR_IMAGE_URI": "654654551634.dkr.ecr.ap-south-1.amazonaws.com/connector/walmart:latest",
-    "WALMART_LAMBDA_ARN": "",
-    "WALMART_API_ID": "",
-    "WALMART_API_GATEWAY_ENDPOINT": "",
     "WALMART_CHECK_FEED_STATUS_FUNCTION_NAME": "${database_name}_walmart_check_feed_status_function",
     "WALMART_UPDATE_INVENTORY_FUNCTION_NAME": "${database_name}_walmart_update_inventory_function",
     "WALMART_CHECK_FEED_STATUS_RULE_NAME": "${database_name}_walmart_feed_status_schedule_rule"

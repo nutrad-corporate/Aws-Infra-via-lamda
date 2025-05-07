@@ -14,8 +14,5 @@
     "SHOPIFY_ECR_IMAGE_URI": "654654551634.dkr.ecr.ap-south-1.amazonaws.com/connector/shopify:latest",
     "SHOPIFY_STORE_NAME": "",
     "SHOPIFY_API_KEY": "",
-    "SHOPIFY_ACCESS_TOKEN": "",
-    "SHOPIFY_LAMBDA_ARN": "",
-    "SHOPIFY_API_GATEWAY_ENDPOINT": "",
-    "SHOPIFY_API_ID": ""
+    "SHOPIFY_ACCESS_TOKEN": ""
 }
