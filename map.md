@@ -90,6 +90,7 @@
     - API Method: POST
     - CORS Enabled: True
     - Authorization: True
+    - Payload Directory: [Payload](Working_JSONs)
     - Directory: [AWS_Infrastructure](AWS_Infrastructure)
     - Description:
         1. Responsible for creating the complete infrastructure for the specific connector of the client.
