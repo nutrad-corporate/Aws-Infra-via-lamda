@@ -1,0 +1,98 @@
+{
+  "pathParameters": {
+    "client": "demo_client",
+    "connector": "lazada"
+  },
+  "body": {
+    "setupsteps": {
+      "step_1": {
+        "name": "create_configuration"
+      },
+      "step_2": {
+        "name": "create_collections",
+        "payload": {
+          "collections": [
+            "LAZADA_PRODUCT_COLLECTION",
+            "LAZADA_LOGS_COLLECTION",
+            "LAZADA_CATEGORY_ID_COLLECTION",
+            "LAZADA_BRAND_ID_COLLECTION"
+          ],
+          "template_files": {
+            "LAZADA_CATEGORY_ID_COLLECTION": "category_id.json",
+            "LAZADA_BRAND_ID_COLLECTION": "brand_id.json"
+          }
+        }
+      },
+      "step_3": {
+        "name": "create_s3_bucket",
+        "payload": {
+          "public_access_block": {
+            "BlockPublicAcls": false,
+            "IgnorePublicAcls": false,
+            "BlockPublicPolicy": false,
+            "RestrictPublicBuckets": false
+          },
+          "ownership_controls": {
+            "Rules": [
+              {
+                "ObjectOwnership": "ObjectWriter"
+              }
+            ]
+          },
+          "acl": "public-read",
+          "policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "AddPublicReadACLToAllObjects",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              },
+              {
+                "Sid": "AllowPutToArchive",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:PutObject",
+                "Resource": "arn:aws:s3:::${bucket}/archive/*"
+              },
+              {
+                "Sid": "AllowPutObject",
+                "Effect": "Allow",
+                "Action": "s3:PutObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              },
+              {
+                "Sid": "AllowObjectDelete",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:DeleteObject",
+                "Resource": "arn:aws:s3:::${bucket}/*"
+              }
+            ]
+          }
+        }
+      },
+      "step_4": {
+        "name": "create_compute_environment"
+      },
+      "step_5": {
+        "name": "create_job_queue"
+      },
+      "step_6": {
+        "name": "create_job_definition"
+      },
+      "step_7": {
+        "name": "create_job",
+        "job_type": "submit",
+        "payload": {
+          "command": [
+            "python",
+            "create_lazada_product.py"
+          ]
+        }
+      }
+    }
+  }
+}
