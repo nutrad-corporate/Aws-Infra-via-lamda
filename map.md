@@ -78,3 +78,9 @@
         1. Responsible for submit the job to the relevant connector.
         2. This lambda function requires to add permission to the IAM role of it, such that it can able to take action for the Batch.
         3. It takes the name of the Job Name, Job Definition, Job Queue, and WALMART_CHECK_FEED_STATUS_RULE_NAME from the configuration document.
+
+8. apiAuthorizer
+    - Directory: [API_Authorizer](API_Authorizer)
+    - Description:
+        1. This lambda function is used as an authorizer for all the APIs we have created.
+        2. This lambda function is attached as an authorizer with all the APIs on the specific route.    
