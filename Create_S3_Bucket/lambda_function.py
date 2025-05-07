@@ -17,6 +17,13 @@ MONGODB_URI = os.environ.get('MONGODB_URI')
 # AWS Configuration
 s3_client = boto3.client('s3')
 
+# CORS header
+cors_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
+}
+
 def lambda_handler(event, context):
     try:
         # extract path parameters
@@ -27,6 +34,7 @@ def lambda_handler(event, context):
             logger.warning(f"Missing path parameters")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing path parameters: client is required'})
             }
 
@@ -59,6 +67,7 @@ def lambda_handler(event, context):
             logger.warning(f"No configuration found for client: {client_name}")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
             }
         
@@ -70,6 +79,7 @@ def lambda_handler(event, context):
             logger.warning(f"S3_BUCKET_NAME is missing in configuration document of client: {client_name}")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({"error": f"S3_BUCKET_NAME is missing in configuration document of client: {client_name}"})
             }
         
@@ -121,6 +131,7 @@ def lambda_handler(event, context):
             logger.info(f"Bucket '{bucket_name}' created and configured successfully")
             return {
                 'statusCode': 200,
+                'headers': cors_headers,
                 'body': json.dumps({"message": f"Bucket '{bucket_name}' created and configured successfully"})
             }
         
@@ -130,18 +141,21 @@ def lambda_handler(event, context):
                 logger.info(f"Bucket '{bucket_name}' already exists and is owned by you.")
                 return {
                     'statusCode': 200,
+                    'headers': cors_headers,
                     'body': json.dumps({"message": f"Bucket '{bucket_name}' already exists and is owned by you."})
                 }
             elif error_code == 'BucketAlreadyExists':
                 logger.warning(f"Bucket '{bucket_name}' already exists and is owned by another account.")
                 return {
                     'statusCode': 409,
+                    'headers': cors_headers,
                     'body': json.dumps({"error": f"Bucket '{bucket_name}' already exists and is owned by another account."})
                 }
             else:
                 logger.exception("Unhandled exception occurred")
                 return {
                     'statusCode': 500,
+                    'headers': cors_headers,
                     'body': json.dumps({"error": str(e)})
                 }
     
@@ -149,6 +163,7 @@ def lambda_handler(event, context):
         logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
     
@@ -156,5 +171,6 @@ def lambda_handler(event, context):
         logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': str(e)})
         }

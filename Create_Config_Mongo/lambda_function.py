@@ -12,6 +12,15 @@ logger.setLevel(logging.INFO)
 # MongoDB connection
 MONGODB_URI = os.environ.get('MONGODB_URI')
 
+
+# CORS header
+cors_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
+}
+
+
 def lambda_handler(event, context):
     client = None  # ensure it's defined
     try:
@@ -23,6 +32,7 @@ def lambda_handler(event, context):
             logger.warning(f"Missing path parameters")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
             }
         
@@ -44,6 +54,7 @@ def lambda_handler(event, context):
             logger.warning(f"No template configuration found for connector: {connector}")
             return {
                 'statusCode': 500,
+                'headers': cors_headers,
                 'body': json.dumps({'error': f'Template configuration not found for {connector}'})
             }
 
@@ -73,6 +84,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
+            'headers': cors_headers,
             'body': json.dumps({
                 "message": message,
                 "database": dbName,
@@ -84,12 +96,14 @@ def lambda_handler(event, context):
         logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
     except Exception as e:
         logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': str(e)})
         }
     finally:

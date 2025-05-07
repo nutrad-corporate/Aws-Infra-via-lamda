@@ -13,6 +13,15 @@ logger.setLevel(logging.INFO)
 # MongoDB connection
 MONGODB_URI = os.environ.get('MONGODB_URI')
 
+
+# CORS header
+cors_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
+}
+
+
 def lambda_handler(event, context):
     try:
         # extract path parameters
@@ -24,6 +33,7 @@ def lambda_handler(event, context):
             logger.warning("Missing path parameters")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
             }
         
@@ -43,6 +53,7 @@ def lambda_handler(event, context):
         if not collections_to_create:
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'No collections specified in the request'})
             }
         
@@ -90,6 +101,7 @@ def lambda_handler(event, context):
                     logger.exception(f"{template_file} not found in directory")
                     return {
                         'statusCode': 500,
+                        'headers': cors_headers,
                         'body': json.dumps({'error': f'{template_file} not found in Lambda directory'})
                     }
                 
@@ -97,6 +109,7 @@ def lambda_handler(event, context):
                     logger.exception(f"Invalid JSON format in {template_file}")
                     return {
                         'statusCode': 500,
+                        'headers': cors_headers,
                         'body': json.dumps({'error': f'Invalid JSON format in {template_file}'})
                     }
                 
@@ -109,6 +122,7 @@ def lambda_handler(event, context):
         
         return {
             'statusCode': 200,
+            'headers': cors_headers,
             'body': json.dumps({
                 'message': f'Collections initialized successfully for client {client_name}.',
                 'created_collections': created_collections
@@ -119,6 +133,7 @@ def lambda_handler(event, context):
         logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
     
@@ -126,5 +141,6 @@ def lambda_handler(event, context):
         logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': str(e)})
         }

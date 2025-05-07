@@ -20,6 +20,14 @@ batch_client = boto3.client('batch')
 events_client = boto3.client('events')
 
 
+# CORS header
+cors_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
+}
+
+
 def submit_job(job_name, job_queue, job_definition, client_key, command):
     try:
         logger.info(f"Submitting job: {job_name} to queue: {job_queue} using definition: {job_definition}")
@@ -108,6 +116,7 @@ def lambda_handler(event, context):
             logger.warning("Missing path parameters")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing path parameters: client, connector and job_type are required'})
             }
         
@@ -126,6 +135,7 @@ def lambda_handler(event, context):
             logger.warning("Missing command in request body")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing command in request body'})
             }
         
@@ -133,6 +143,7 @@ def lambda_handler(event, context):
             logger.warning("Command must be a list")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Command must be a list'})
             }
 
@@ -150,6 +161,7 @@ def lambda_handler(event, context):
             logger.warning(f"No configuration found for client: {client_name}")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
             }
         
@@ -162,6 +174,7 @@ def lambda_handler(event, context):
             logger.warning(f"Job name or Job definition name or Job Queue name is missing in configuration document for connector: {connector}")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': f"Job name or Job definition name or Job Queue name is missing in configuration document for connector: {connector}"})
             }
         
@@ -179,6 +192,7 @@ def lambda_handler(event, context):
                 job_id = response.get('jobId')
                 return {
                     'statusCode': 200,
+                    'headers': cors_headers,
                     'body': json.dumps({'status': 'SUBMITTED', 'jobName': job_name, 'jobId': job_id})
                 }
             
@@ -188,6 +202,7 @@ def lambda_handler(event, context):
                     logger.warning("Missing rule name in configuration for check_feed_status")
                     return {
                         'statusCode': 400,
+                        'headers': cors_headers,
                         'body': json.dumps({'error': 'Missing rule name in configuration for check_feed_status'})
                     }
                 
@@ -197,6 +212,7 @@ def lambda_handler(event, context):
                 if not eventbridge_role_arn:
                     return {
                         'statusCode': 500,
+                        'headers': cors_headers,
                         'body': json.dumps({'error': 'Missing EVENTBRIDGE_ROLE_ARN environment variable'}) 
                     }
                 
@@ -213,12 +229,14 @@ def lambda_handler(event, context):
 
                 return {
                     'statusCode': 200,
+                    'headers': cors_headers,
                     'body': json.dumps({'status': 'SCHEDULED', 'ruleName': rule_name, 'jobName': job_name})
                 }
 
             case _:
                 return {
                     'statusCode': 400,
+                    'headers': cors_headers,
                     'body': json.dumps({'error': f'Unsupported job_type: {job_type}'})
                 }                          
     
@@ -226,6 +244,7 @@ def lambda_handler(event, context):
         logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
     
@@ -233,5 +252,6 @@ def lambda_handler(event, context):
         logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': str(e)})
         }

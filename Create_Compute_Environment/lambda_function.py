@@ -19,6 +19,14 @@ MONGODB_URI = os.environ.get('MONGODB_URI')
 batch_client = boto3.client('batch')
 
 
+# CORS header
+cors_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
+}
+
+
 def create_compute_environment(compute_environment_name):
     try:
         # Check if the compute environment already exists
@@ -78,6 +86,7 @@ def lambda_handler(event, context):
             logger.warning("Missing path parameters")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing path parameters: client and connector are required'})
             }
         
@@ -100,6 +109,7 @@ def lambda_handler(event, context):
             logger.warning(f"No configuration found for client: {client_name}")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
             }
         
@@ -110,6 +120,7 @@ def lambda_handler(event, context):
             logger.warning(f"Compute environment name is missing in configuration document for connector: {connector}")
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({"error": f"Compute environment name is missing in configuration document for connector: {connector}"})
             }
         
@@ -123,6 +134,7 @@ def lambda_handler(event, context):
         logger.info(f"Compute environment creation result: {status}")
         return {
             'statusCode': status_code,
+            'headers': cors_headers,
             'body': json.dumps({"status": status})
         }
 
@@ -130,6 +142,7 @@ def lambda_handler(event, context):
         logger.exception("Failed to connect to MongoDB")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Failed to connect to MongoDB'})
         }
 
@@ -137,5 +150,6 @@ def lambda_handler(event, context):
         logger.exception("Unhandled exception occurred")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({'error': str(e)})
         }
