@@ -40,6 +40,14 @@ STEP_URL_CONFIG = {
     "create_job_definition": {
         "url": "https://4li7upsuzh.execute-api.ap-south-1.amazonaws.com/prod/init/{client}/{connector}",
         "method": "GET"
+    },
+    "check_feed_status": {
+        "url": "https://s97690e06j.execute-api.ap-south-1.amazonaws.com/default/init/{job_type}/{client}/{connector}",
+        "method": "POST"
+    },
+    "create_db_mapping": {
+        "url": "https://kw0eegth7g.execute-api.ap-south-1.amazonaws.com/prod/init/{client}",
+        "method": "GET"
     }
 }
 
@@ -79,6 +87,7 @@ def lambda_handler(event, context):
         for step_key in sorted(setupsteps.keys()):
             step = setupsteps[step_key]
             step_name = step.get('name')
+            job_type = step.get('job_type')
             payload = step.get('payload', {})
 
             config = STEP_URL_CONFIG.get(step_name)
@@ -91,7 +100,8 @@ def lambda_handler(event, context):
             
             url = config['url'].format(
                 client=client_name,
-                connector=connector or ""
+                connector=connector or "",
+                job_type=job_type or ""
             )
 
             method = config['method'].upper()
