@@ -68,7 +68,7 @@
         3. It takes the name of the Job Definition and ECR Image URI from the configuration document.
 
 7. createJob
-    - API Gateway: https://s97690e06j.execute-api.ap-south-1.amazonaws.com/default/init/{job_type}/{client}/{connector}
+    - API Gateway: https://s97690e06j.execute-api.ap-south-1.amazonaws.com/prod/init/{job_type}/{client}/{connector}
     - API Method: POST
     - CORS Enabled: True
     - Authorization: True
