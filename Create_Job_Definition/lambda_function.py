@@ -106,48 +106,48 @@ def lambda_handler(event, context):
         logger.info(f"Processing request of client: {client_name} for connector: {connector}")
 
         # connect to MongoDB
-        client = MongoClient(MONGODB_URI)
-        client.admin.command('ping')
+        with MongoClient(MONGODB_URI) as client:
+            client.admin.command('ping')
 
-        # select the appropriate database and configuration collection
-        logger.info("Connecting to the database")
-        db = client[client_name]
-        config_collection = db[f'{client_name}_Configuration']
-        config_doc = config_collection.find_one()
+            # select the appropriate database and configuration collection
+            logger.info("Connecting to the database")
+            db = client[client_name]
+            config_collection = db[f'{client_name}_Configuration']
+            config_doc = config_collection.find_one()
 
-        if not config_doc:
-            logger.warning(f"No configuration found for client: {client_name}")
+            if not config_doc:
+                logger.warning(f"No configuration found for client: {client_name}")
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
+                }
+            
+            logger.info(f"Fetching the job definition name and ECR Image URI from the configuraiton collection for the connector: {connector}")
+            job_definition_name = config_doc.get(f"{connector.upper()}_JOB_DEFINITION_NAME")
+            ecr_image_uri = config_doc.get(f"{connector.upper()}_ECR_IMAGE_URI")
+
+            if not job_definition_name or not ecr_image_uri:
+                logger.warning(f"Job Definition name or ECR Image URI is missing in configuration document for connector: {connector}")
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': f'Job definition name or ECR Image URI is missing in configuration document for connector: {connector}'})
+                }
+            
+            logger.info(f"Fetched job definition name: {job_definition_name} and ECR Image URI: {ecr_image_uri}")
+
+            logger.info(f"Creating Job Definition: {job_definition_name} with ECR Image URI: {ecr_image_uri}")
+            response = create_job_definition(job_definition_name=job_definition_name, ecr_image_uri=ecr_image_uri)
+            status_code = response['ResponseMetadata']['HTTPStatusCode']
+            status = response.get('status', 'CREATED')
+
+            logger.info(f"Job Definition creation result: {status}")
             return {
-                'statusCode': 400,
+                'statusCode': status_code,
                 'headers': cors_headers,
-                'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
+                'body': json.dumps({'status': status})
             }
-        
-        logger.info(f"Fetching the job definition name and ECR Image URI from the configuraiton collection for the connector: {connector}")
-        job_definition_name = config_doc.get(f"{connector.upper()}_JOB_DEFINITION_NAME")
-        ecr_image_uri = config_doc.get(f"{connector.upper()}_ECR_IMAGE_URI")
-
-        if not job_definition_name or not ecr_image_uri:
-            logger.warning(f"Job Definition name or ECR Image URI is missing in configuration document for connector: {connector}")
-            return {
-                'statusCode': 400,
-                'headers': cors_headers,
-                'body': json.dumps({'error': f'Job definition name or ECR Image URI is missing in configuration document for connector: {connector}'})
-            }
-        
-        logger.info(f"Fetched job definition name: {job_definition_name} and ECR Image URI: {ecr_image_uri}")
-
-        logger.info(f"Creating Job Definition: {job_definition_name} with ECR Image URI: {ecr_image_uri}")
-        response = create_job_definition(job_definition_name=job_definition_name, ecr_image_uri=ecr_image_uri)
-        status_code = response['ResponseMetadata']['HTTPStatusCode']
-        status = response.get('status', 'CREATED')
-
-        logger.info(f"Job Definition creation result: {status}")
-        return {
-            'statusCode': status_code,
-            'headers': cors_headers,
-            'body': json.dumps({'status': status})
-        }
     
     except ConnectionFailure:
         logger.exception("Failed to connect to MongoDB")

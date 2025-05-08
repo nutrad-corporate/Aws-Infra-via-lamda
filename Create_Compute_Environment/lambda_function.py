@@ -96,47 +96,47 @@ def lambda_handler(event, context):
         logger.info(f"Processing request of client: {client_name} for connector: {connector}")
 
         # connect to MongoDB
-        client = MongoClient(MONGODB_URI)
-        client.admin.command('ping')
+        with MongoClient(MONGODB_URI) as client:
+            client.admin.command('ping')
 
-        # select the appropriate database and configuraiton collection
-        logger.info("Connecting to the database")
-        db = client[client_name]
-        config_collection = db[f'{client_name}_Configuration']
-        config_doc = config_collection.find_one()
+            # select the appropriate database and configuraiton collection
+            logger.info("Connecting to the database")
+            db = client[client_name]
+            config_collection = db[f'{client_name}_Configuration']
+            config_doc = config_collection.find_one()
 
-        if not config_doc:
-            logger.warning(f"No configuration found for client: {client_name}")
+            if not config_doc:
+                logger.warning(f"No configuration found for client: {client_name}")
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
+                }
+            
+            logger.info(f"Fetching the compute environment name from the configuration collection for the connector: {connector}")
+            compute_environment_name = config_doc.get(f"{connector.upper()}_COMPUTE_ENVIRONMENT_NAME")
+
+            if not compute_environment_name:
+                logger.warning(f"Compute environment name is missing in configuration document for connector: {connector}")
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({"error": f"Compute environment name is missing in configuration document for connector: {connector}"})
+                }
+            
+            logger.info(f"Fetched compute environment name: {compute_environment_name}")
+
+            logger.info("Creating Compute Environment")
+            response = create_compute_environment(compute_environment_name=compute_environment_name)
+            status_code = response['ResponseMetadata']['HTTPStatusCode']
+            status = response.get('status', 'CREATED')
+            
+            logger.info(f"Compute environment creation result: {status}")
             return {
-                'statusCode': 400,
+                'statusCode': status_code,
                 'headers': cors_headers,
-                'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
+                'body': json.dumps({"status": status})
             }
-        
-        logger.info(f"Fetching the compute environment name from the configuration collection for the connector: {connector}")
-        compute_environment_name = config_doc.get(f"{connector.upper()}_COMPUTE_ENVIRONMENT_NAME")
-
-        if not compute_environment_name:
-            logger.warning(f"Compute environment name is missing in configuration document for connector: {connector}")
-            return {
-                'statusCode': 400,
-                'headers': cors_headers,
-                'body': json.dumps({"error": f"Compute environment name is missing in configuration document for connector: {connector}"})
-            }
-        
-        logger.info(f"Fetched compute environment name: {compute_environment_name}")
-
-        logger.info("Creating Compute Environment")
-        response = create_compute_environment(compute_environment_name=compute_environment_name)
-        status_code = response['ResponseMetadata']['HTTPStatusCode']
-        status = response.get('status', 'CREATED')
-        
-        logger.info(f"Compute environment creation result: {status}")
-        return {
-            'statusCode': status_code,
-            'headers': cors_headers,
-            'body': json.dumps({"status": status})
-        }
 
     except ConnectionFailure:
         logger.exception("Failed to connect to MongoDB")

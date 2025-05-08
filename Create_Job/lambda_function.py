@@ -150,97 +150,97 @@ def lambda_handler(event, context):
             }
 
         # connect to MongoDB
-        client = MongoClient(MONGODB_URI)
-        client.admin.command('ping')
+        with MongoClient(MONGODB_URI) as client:
+            client.admin.command('ping')
 
-        # select the appropriate database and configuration collection
-        logger.info("Connecting to the database")
-        db = client[client_name]
-        config_collection = db[f'{client_name}_Configuration']
-        config_doc = config_collection.find_one()
+            # select the appropriate database and configuration collection
+            logger.info("Connecting to the database")
+            db = client[client_name]
+            config_collection = db[f'{client_name}_Configuration']
+            config_doc = config_collection.find_one()
 
-        if not config_doc:
-            logger.warning(f"No configuration found for client: {client_name}")
-            return {
-                'statusCode': 400,
-                'headers': cors_headers,
-                'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
-            }
-        
-        logger.info(f"Fetching the job name, job definition name and job queue name from the configuration collection for the connector: {connector}")
-        job_name = config_doc.get(f"{connector.upper()}_JOB_NAME")
-        job_definition = config_doc.get(f"{connector.upper()}_JOB_DEFINITION_NAME")
-        job_queue = config_doc.get(f"{connector.upper()}_JOB_QUEUE_NAME")
-
-        if not job_name or not job_definition or not job_queue:
-            logger.warning(f"Job name or Job definition name or Job Queue name is missing in configuration document for connector: {connector}")
-            return {
-                'statusCode': 400,
-                'headers': cors_headers,
-                'body': json.dumps({'error': f"Job name or Job definition name or Job Queue name is missing in configuration document for connector: {connector}"})
-            }
-        
-        logger.info(f"Fetched job name: {job_name}, job defintion name: {job_definition} and job queue name: {job_queue}")
-
-        match job_type:
-            case 'submit':
-                response = submit_job(
-                    job_name=job_name,
-                    job_queue=job_queue,
-                    job_definition=job_definition,
-                    client_key=client_name,
-                    command=command
-                )
-                job_id = response.get('jobId')
-                return {
-                    'statusCode': 200,
-                    'headers': cors_headers,
-                    'body': json.dumps({'status': 'SUBMITTED', 'jobName': job_name, 'jobId': job_id})
-                }
-            
-            case 'check_feed_status':
-                rule_name = config_doc.get("WALMART_CHECK_FEED_STATUS_RULE_NAME")
-                if not rule_name:
-                    logger.warning("Missing rule name in configuration for check_feed_status")
-                    return {
-                        'statusCode': 400,
-                        'headers': cors_headers,
-                        'body': json.dumps({'error': 'Missing rule name in configuration for check_feed_status'})
-                    }
-                
-                schedule_expression = "rate(5 minutes)"
-
-                eventbridge_role_arn = os.environ.get('EVENTBRIDGE_ROLE_ARN')
-                if not eventbridge_role_arn:
-                    return {
-                        'statusCode': 500,
-                        'headers': cors_headers,
-                        'body': json.dumps({'error': 'Missing EVENTBRIDGE_ROLE_ARN environment variable'}) 
-                    }
-                
-                create_recurring_job_rule(
-                    rule_name=rule_name,
-                    schedule_expression=schedule_expression,
-                    job_name=job_name,
-                    job_queue=job_queue,
-                    job_definition=job_definition,
-                    client_key=client_name,
-                    command=command,
-                    role_arn=eventbridge_role_arn
-                )
-
-                return {
-                    'statusCode': 200,
-                    'headers': cors_headers,
-                    'body': json.dumps({'status': 'SCHEDULED', 'ruleName': rule_name, 'jobName': job_name})
-                }
-
-            case _:
+            if not config_doc:
+                logger.warning(f"No configuration found for client: {client_name}")
                 return {
                     'statusCode': 400,
                     'headers': cors_headers,
-                    'body': json.dumps({'error': f'Unsupported job_type: {job_type}'})
-                }                          
+                    'body': json.dumps({'error': f'No configuration found for client: {client_name}'})
+                }
+            
+            logger.info(f"Fetching the job name, job definition name and job queue name from the configuration collection for the connector: {connector}")
+            job_name = config_doc.get(f"{connector.upper()}_JOB_NAME")
+            job_definition = config_doc.get(f"{connector.upper()}_JOB_DEFINITION_NAME")
+            job_queue = config_doc.get(f"{connector.upper()}_JOB_QUEUE_NAME")
+
+            if not job_name or not job_definition or not job_queue:
+                logger.warning(f"Job name or Job definition name or Job Queue name is missing in configuration document for connector: {connector}")
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': f"Job name or Job definition name or Job Queue name is missing in configuration document for connector: {connector}"})
+                }
+            
+            logger.info(f"Fetched job name: {job_name}, job defintion name: {job_definition} and job queue name: {job_queue}")
+
+            match job_type:
+                case 'submit':
+                    response = submit_job(
+                        job_name=job_name,
+                        job_queue=job_queue,
+                        job_definition=job_definition,
+                        client_key=client_name,
+                        command=command
+                    )
+                    job_id = response.get('jobId')
+                    return {
+                        'statusCode': 200,
+                        'headers': cors_headers,
+                        'body': json.dumps({'status': 'SUBMITTED', 'jobName': job_name, 'jobId': job_id})
+                    }
+                
+                case 'check_feed_status':
+                    rule_name = config_doc.get("WALMART_CHECK_FEED_STATUS_RULE_NAME")
+                    if not rule_name:
+                        logger.warning("Missing rule name in configuration for check_feed_status")
+                        return {
+                            'statusCode': 400,
+                            'headers': cors_headers,
+                            'body': json.dumps({'error': 'Missing rule name in configuration for check_feed_status'})
+                        }
+                    
+                    schedule_expression = "rate(5 minutes)"
+
+                    eventbridge_role_arn = os.environ.get('EVENTBRIDGE_ROLE_ARN')
+                    if not eventbridge_role_arn:
+                        return {
+                            'statusCode': 500,
+                            'headers': cors_headers,
+                            'body': json.dumps({'error': 'Missing EVENTBRIDGE_ROLE_ARN environment variable'}) 
+                        }
+                    
+                    create_recurring_job_rule(
+                        rule_name=rule_name,
+                        schedule_expression=schedule_expression,
+                        job_name=job_name,
+                        job_queue=job_queue,
+                        job_definition=job_definition,
+                        client_key=client_name,
+                        command=command,
+                        role_arn=eventbridge_role_arn
+                    )
+
+                    return {
+                        'statusCode': 200,
+                        'headers': cors_headers,
+                        'body': json.dumps({'status': 'SCHEDULED', 'ruleName': rule_name, 'jobName': job_name})
+                    }
+
+                case _:
+                    return {
+                        'statusCode': 400,
+                        'headers': cors_headers,
+                        'body': json.dumps({'error': f'Unsupported job_type: {job_type}'})
+                    }                          
     
     except ConnectionFailure:
         logger.exception("Failed to connect to MongoDB")
