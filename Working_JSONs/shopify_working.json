@@ -73,6 +73,9 @@
       },
       "step_6": {
         "name": "create_job_definition"
+      },
+      "step_7": {
+        "name": "create_db_mapping"
       }
     }
   }

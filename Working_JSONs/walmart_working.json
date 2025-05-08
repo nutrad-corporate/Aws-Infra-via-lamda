@@ -79,6 +79,19 @@
       },
       "step_6": {
         "name": "create_job_definition"
+      },
+      "step_7": {
+        "name": "check_feed_status",
+        "job_type": "check_feed_status",
+        "payload": {
+          "command": [
+            "python",
+            "check_feed_status.py"
+          ]
+        }
+      },
+      "step_8": {
+        "name": "create_db_mapping"
       }
     }
   }
