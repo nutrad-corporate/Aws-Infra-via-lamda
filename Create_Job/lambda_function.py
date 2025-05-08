@@ -67,26 +67,28 @@ def create_recurring_job_rule(rule_name, schedule_expression, job_name, job_queu
         )
 
         logger.info(f"Rule created/updated: {rule_response}")
-
+        
+        # Create a proper JSON input with the containerOverrides
+        input_template = {
+            "ContainerOverrides": {
+                "Command": command,
+                "Environment": [
+                    {"Name": "TARGET_CLIENT_KEY", "Value": client_key}
+                ]
+            }
+        }
+        
         # Step 2: Define the target Batch job details
         target = {
             'Id': '1',
-            'Arn': f'arn:aws:batch:ap-south-1:654654551634:job-definition/{job_definition}',
+            'Arn': f'arn:aws:batch:ap-south-1:654654551634:job-queue/{job_queue}',
             'RoleArn': role_arn,
-            'Input': json.dumps({
-                "jobName": job_name,
-                "jobQueue": job_queue,
-                "jobDefinition": job_definition,
-                "containerOverrides": {
-                    "environment": [
-                        {"name": "TARGET_CLIENT_KEY", "value": client_key}
-                    ],
-                    "command": command
-                }
-            }),
-            'EcsParameters': {
-                'TaskCount': 1
-            }
+            'BatchParameters': {
+                "JobName": job_name,
+                "JobDefinition": job_definition
+            },
+            # Use the direct input format instead of InputTransformer
+            'Input': json.dumps(input_template)
         }
 
         # Step 3: Set the target
